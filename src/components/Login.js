@@ -1,9 +1,50 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import LoginImage from "../assets/images/login-background.jpg";
 import LogoTwo from "../assets/images/cta-logo-two.png";
 import LogoOne from "../assets/images/cta-logo-one.svg";
+import axios from "axios";
 function Login(props) {
+  const [location, setLocation] = useState(null);
+
+  useEffect(() => {
+    setLocation(navigator.geolocation);
+  }, []);
+
+  if (location !== null) {
+    location.getCurrentPosition(onSuccess, onError);
+  } else {
+    console.log("brower not supporting");
+  }
+  function onSuccess(postion) {
+    let { latitude, longitude } = postion.coords;
+    // https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=2e3af76b177a4c8f8b9d209a631a80a5
+    axios
+      .get(
+        `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=2e3af76b177a4c8f8b9d209a631a80a5`
+      )
+      .then((response) => response.data)
+      .then((result) => {
+        console.log(result);
+        let allData = result.results[0].components;
+        let { country, city, postcode } = allData;
+        console.log(country, postcode, city);
+      })
+      .catch((err) => {
+        console.log("Somthing went wrong", err);
+      });
+  }
+  function onError(error) {
+    console.log(error);
+    if (error.code === 1) {
+      console.log("You Denied the request");
+    } else if (error.code === 2) {
+      console.log("Location not available");
+    } else {
+      console.log("Somthing went wrong");
+    }
+  }
+
   return (
     <Container>
       <Content>
