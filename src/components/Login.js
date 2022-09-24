@@ -9,13 +9,13 @@ function Login(props) {
 
   useEffect(() => {
     setLocation(navigator.geolocation);
-  }, []);
+    if (location !== null) {
+      location.getCurrentPosition(onSuccess, onError);
+    } else {
+      console.log("brower not supporting");
+    }
+  }, [location]);
 
-  if (location !== null) {
-    location.getCurrentPosition(onSuccess, onError);
-  } else {
-    console.log("brower not supporting");
-  }
   function onSuccess(postion) {
     let { latitude, longitude } = postion.coords;
     // https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=2e3af76b177a4c8f8b9d209a631a80a5
@@ -27,8 +27,12 @@ function Login(props) {
       .then((result) => {
         console.log(result);
         let allData = result.results[0].components;
-        let { country, city, postcode } = allData;
-        console.log(country, postcode, city);
+        // console.log(allData);
+        let { country, city, postcode, continent } = allData;
+        localStorage.setItem("Country", country);
+        localStorage.setItem("City", city);
+        localStorage.setItem("postCode", postcode);
+        localStorage.setItem("Continet", continent);
       })
       .catch((err) => {
         console.log("Somthing went wrong", err);
